@@ -1,0 +1,169 @@
+-- Tabla de usuarios del sistema
+CREATE TABLE Grupo6_usuarios (
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100),
+    correo VARCHAR(100) UNIQUE,
+    clave VARCHAR(255),
+    rol ENUM('admin', 'bibliotecario') NOT NULL
+);
+
+-- Tabla de lectores
+CREATE TABLE Grupo6_lectores (
+    id_lector INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100),
+    correo VARCHAR(100) UNIQUE,
+    telefono VARCHAR(20),
+    direccion TEXT
+);
+
+-- Tabla de autores
+CREATE TABLE Grupo6_autores (
+    id_autor INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100),
+    nacionalidad VARCHAR(50)
+);
+
+-- Tabla de editoriales
+CREATE TABLE Grupo6_editoriales (
+    id_editorial INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100),
+    pais VARCHAR(50)
+);
+
+-- Tabla de categorías de libros
+CREATE TABLE Grupo6_categorias (
+    id_categoria INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100),
+    descripcion TEXT
+);
+
+-- Tabla de libros
+CREATE TABLE Grupo6_libros (
+    id_libro INT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(150),
+    anio_publicacion YEAR,
+    id_categoria INT,
+    id_editorial INT,
+    isbn VARCHAR(20) UNIQUE,
+    cantidad_disponible INT,
+    FOREIGN KEY (id_categoria) REFERENCES Grupo6_categorias(id_categoria),
+    FOREIGN KEY (id_editorial) REFERENCES Grupo6_editoriales(id_editorial)
+);
+
+-- Relación muchos a muchos entre libros y autores
+CREATE TABLE Grupo6_libros_autores (
+    id_libro INT,
+    id_autor INT,
+    PRIMARY KEY (id_libro, id_autor),
+    FOREIGN KEY (id_libro) REFERENCES Grupo6_libros(id_libro),
+    FOREIGN KEY (id_autor) REFERENCES Grupo6_autores(id_autor)
+);
+
+-- Tabla de préstamos
+CREATE TABLE Grupo6_prestamos (
+    id_prestamo INT AUTO_INCREMENT PRIMARY KEY,
+    id_lector INT,
+    fecha_prestamo DATE,
+    fecha_devolucion DATE,
+    estado ENUM('activo', 'devuelto', 'retrasado') DEFAULT 'activo',
+    FOREIGN KEY (id_lector) REFERENCES Grupo6_lectores(id_lector)
+);
+
+-- Detalle del préstamo
+CREATE TABLE Grupo6_detalle_prestamo (
+    id_detalle INT AUTO_INCREMENT PRIMARY KEY,
+    id_prestamo INT,
+    id_libro INT,
+    cantidad INT,
+    FOREIGN KEY (id_prestamo) REFERENCES Grupo6_prestamos(id_prestamo),
+    FOREIGN KEY (id_libro) REFERENCES Grupo6_libros(id_libro)
+);
+
+-- Tabla de reservas
+CREATE TABLE Grupo6_reservas (
+    id_reserva INT AUTO_INCREMENT PRIMARY KEY,
+    id_lector INT,
+    id_libro INT,
+    fecha_reserva DATE,
+    estado ENUM('pendiente', 'completada', 'cancelada') DEFAULT 'pendiente',
+    FOREIGN KEY (id_lector) REFERENCES Grupo6_lectores(id_lector),
+    FOREIGN KEY (id_libro) REFERENCES Grupo6_libros(id_libro)
+);
+
+-- Tabla de multas
+CREATE TABLE Grupo6_multas (
+    id_multa INT AUTO_INCREMENT PRIMARY KEY,
+    id_prestamo INT,
+    monto DECIMAL(10,2),
+    pagado BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (id_prestamo) REFERENCES Grupo6_prestamos(id_prestamo)
+);
+
+-- Historial de actividad
+CREATE TABLE Grupo6_historial (
+    id_historial INT AUTO_INCREMENT PRIMARY KEY,
+    id_lector INT,
+    accion VARCHAR(255),
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_lector) REFERENCES Grupo6_lectores(id_lector)
+);
+
+-- Usuarios del sistema
+INSERT INTO Grupo6_usuarios (nombre, correo, clave, rol) VALUES
+('Admin Principal', 'admin@biblioteca.com', 'admin123', 'admin'),
+('Carlos Pérez', 'carlos@biblioteca.com', 'clave456', 'bibliotecario');
+
+-- Lectores
+INSERT INTO Grupo6_lectores (nombre, correo, telefono, direccion) VALUES
+('Ana Gómez', 'ana@gmail.com', '8888-1234', 'San José'),
+('Luis Mora', 'luis@hotmail.com', '8877-4321', 'Alajuela');
+
+-- Autores
+INSERT INTO Grupo6_autores (nombre, nacionalidad) VALUES
+('Gabriel García Márquez', 'Colombia'),
+('J.K. Rowling', 'Reino Unido');
+
+-- Editoriales
+INSERT INTO Grupo6_editoriales (nombre, pais) VALUES
+('Editorial Sudamericana', 'Argentina'),
+('Bloomsbury Publishing', 'Reino Unido');
+
+-- Categorías
+INSERT INTO Grupo6_categorias (nombre, descripcion) VALUES
+('Ficción', 'Narrativa de hechos imaginarios'),
+('Fantasía', 'Mundos mágicos y épicos');
+
+-- Libros
+INSERT INTO Grupo6_libros (titulo, anio_publicacion, id_categoria, id_editorial, isbn, cantidad_disponible) VALUES
+('Cien Años de Soledad', 1967, 1, 1, '978-84-376-0494-7', 5),
+('Harry Potter y la Piedra Filosofal', 1997, 2, 2, '978-0-7475-3269-9', 3);
+
+-- Relación Libros - Autores
+INSERT INTO Grupo6_libros_autores (id_libro, id_autor) VALUES
+(1, 1),
+(2, 2);
+
+-- Préstamos
+INSERT INTO Grupo6_prestamos (id_lector, fecha_prestamo, fecha_devolucion, estado) VALUES
+(1, '2025-06-01', '2025-06-10', 'devuelto'),
+(2, '2025-06-05', '2025-06-15', 'activo');
+
+-- Detalle de préstamo
+INSERT INTO Grupo6_detalle_prestamo (id_prestamo, id_libro, cantidad) VALUES
+(1, 1, 1),
+(2, 2, 1);
+
+-- Reservas
+INSERT INTO Grupo6_reservas (id_lector, id_libro, fecha_reserva, estado) VALUES
+(1, 2, '2025-06-08', 'pendiente'),
+(2, 1, '2025-06-09', 'cancelada');
+
+-- Multas
+INSERT INTO Grupo6_multas (id_prestamo, monto, pagado) VALUES
+(1, 1500.00, TRUE),
+(2, 2000.00, FALSE);
+
+-- Historial
+INSERT INTO Grupo6_historial (id_lector, accion) VALUES
+(1, 'Accedió al catálogo'),
+(2, 'Realizó una reserva');
