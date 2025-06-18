@@ -39,7 +39,7 @@ class EditorialController {
 
     // Método para actualizar una editorial existente
     public function actualizar($data) {
-        // Validaciones básicas de los datos recibidos
+        // Validaciones básicas de los datos recibidosS
         if (empty($data['id_editorial']) || empty($data['nombre']) || empty($data['pais'])) {
             return ['error' => 'Todos los campos son requeridos'];
         }
